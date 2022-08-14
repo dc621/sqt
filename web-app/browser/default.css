@@ -1,13 +1,10 @@
-:root
-{
+:root {
     --grid-columns: 7;
     --grid-rows: 6;
     --grid-aspect: var(--grid-columns) / var(--grid-rows);
-
     --footer-height: 48px;
     --header-height: 64px;
     --sidebar-width: clamp(100px, 25%, 300px);
-
     --palette-accent0: #804;
     --palette-accent1: #d07;
     --palette-accent2: #f08;
@@ -20,17 +17,20 @@
     --palette-base5: #eff0f1;
     --palette-secondary0: #345e75;
     --palette-secondary1: #3daee9;
-
+    --palette-secondary2: #cf5c36;
+    --palette-secondary3: #eee5e9;
+    --palette-secondary4: #7c7c7c;
+    --palette-secondary5: #efc88b;
+    --palette-secondary6: #bea2c2;
+    --palette-secondary7: #a37871;
     --grid-background: #1143c4;
 }
 
-*
-{
+* {
     box-sizing: border-box;
 }
 
-body
-{
+body {
     color: var(--palette-base5);
     font-family: "Fira Sans", sans-serif;
     font-size: 16pt;
@@ -40,8 +40,7 @@ body
     width: 100%;
 }
 
-header
-{
+header {
     background: var(--palette-accent2);
     height: var(--header-height);
     padding: 0;
@@ -50,16 +49,14 @@ header
     width: 100%;
 }
 
-header a
-{
+header a {
     color: var(--palette-base5);
     position: absolute;
     right: 1em;
     top: 0.5em;
 }
 
-header h1
-{
+header h1 {
     font-size: 28pt;
     font-weight: bold;
     padding: 0;
@@ -67,8 +64,7 @@ header h1
     margin: 0;
 }
 
-aside
-{
+aside {
     background: var(--palette-base1);
     height: calc(100% - var(--header-height) - var(--footer-height));
     /* max-width: var(--sidebar-max-width); */
@@ -77,8 +73,7 @@ aside
     width: var(--sidebar-width);
 }
 
-main
-{
+main {
     background: var(--palette-base2);
     height: calc(100% - var(--header-height) - var(--footer-height));
     left: var(--sidebar-width);
@@ -87,8 +82,7 @@ main
     width: calc(100% - var(--sidebar-width));
 }
 
-footer
-{
+footer {
     background: var(--palette-secondary0);
     bottom: 0px;
     height: var(--footer-height);
@@ -97,8 +91,7 @@ footer
     width: 100%;
 }
 
-.grid
-{
+.grid {
     aspect-ratio: var(--grid-aspect);
     background: var(--palette-base0);
     margin: 0;
@@ -110,8 +103,46 @@ footer
     max-width: 100%;
 }
 
-.row
-{
+.sidebar {
+    align-content: center;
+    position: absolute;
+    padding-top: 100px;
+}
+
+
+/* .side_container {
+    background-color: #a37871;
+    width: 100%;
+    height: 100%;
+} */
+
+.sidebar_grid {
+    aspect-ratio: var(--grid-aspect);
+    background: var(--palette-base0);
+    background-color: #bea2c2;
+    margin: 0;
+    padding-top: 100px;
+    /* padding-left: 100px;
+    padding-right: -100px; */
+    padding-bottom: -100px;
+    /* position: relative; */
+    /* max-height: 100%;
+    max-width: 100%; */
+    align-items: center;
+    justify-content: center;
+    /* display: flex; */
+    align-content: center;
+}
+
+.hold_piece_grid {
+    aspect-ratio: var(--grid-aspect);
+    padding-top: 0;
+    /* background-color: #1143c4; */
+    max-height: 100px;
+    max-width: 100px;
+}
+
+.row {
     height: calc(100% / var(--grid-rows));
     position: relative;
     padding: 0;
@@ -119,8 +150,7 @@ footer
     width: 100%;
 }
 
-.cell
-{
+.cell {
     background-size: cover;
     border: 0.5px solid var(--palette-base3);
     display: inline-block;
@@ -131,47 +161,36 @@ footer
     width: calc(100% / var(--grid-columns));
 }
 
-.cell.empty
-{
-    
-}
+.cell.empty {}
 
-.cell.I
-{
+.cell.I {
     background-color: var(--palette-secondary1);
 }
 
-.cell.J
-{
-    background-color: var(--palette-secondary1);
+.cell.J {
+    background-color: var(--palette-secondary2);
 }
 
-.cell.L
-{
-    background-color: var(--palette-secondary1);
+.cell.L {
+    background-color: var(--palette-secondary3);
 }
 
-.cell.O
-{
-    background-color: var(--palette-secondary1);
+.cell.O {
+    background-color: var(--palette-secondary4);
 }
 
-.cell.S
-{
-    background-color: var(--palette-secondary1);
+.cell.S {
+    background-color: var(--palette-secondary5);
 }
 
-.cell.T
-{
-    background-color: var(--palette-secondary1);
+.cell.T {
+    background-color: var(--palette-accent1);
 }
 
-.cell.Z
-{
-    background-color: var(--palette-secondary1);
+.cell.Z {
+    background-color: var(--palette-secondary7);
 }
 
-.cell.current
-{
+.cell.current {
     background-color: var(--palette-accent2);
 }

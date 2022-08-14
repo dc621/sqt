@@ -26,6 +26,8 @@ const Tetris = Object.create(null);
  * @property {Tetris.Tetromino} next_tetromino The next piece to descend.
  * @property {number[]} position Where in the field is the current tetromino.
  * @property {Tetris.Score} score Information relating to the score of the game.
+ * @property {Tetris.Tetromino} held_tetromino Rhe tetromino you that is being held
+ * @property {boolean} can_hold A boolean that determines if holding is allowed
  */
 
 /**
@@ -262,8 +264,8 @@ const starting_position = [Math.floor(Tetris.field_width / 2) - 1, 0];
 // ## Methods                                                                 //
 //----------------------------------------------------------------------------//
 
-const random_bag = function (contents) {
-    return function () {
+const random_bag = function(contents) {
+    return function() {
         if (contents.length === 0) {
             return new_bag();
         }
@@ -278,11 +280,11 @@ const random_bag = function (contents) {
 
 const new_bag = random_bag(all_tetrominos);
 
-const new_line = function () {
+const new_line = function() {
     return R.repeat(empty_block, Tetris.field_width);
 };
 
-const new_field = function () {
+const new_field = function() {
     return R.times(new_line, Tetris.field_height);
 };
 
@@ -294,7 +296,7 @@ const new_score = () => 0;
  * @memberof Tetris
  * @returns {Tetris.Game} The new game.
  */
-Tetris.new_game = function () {
+Tetris.new_game = function() {
     const [current_tetromino, next_bag] = new_bag();
     const [next_tetromino, bag] = next_bag();
 
@@ -305,9 +307,44 @@ Tetris.new_game = function () {
         "game_over": false,
         "next_tetromino": next_tetromino,
         "position": starting_position,
-        "score": new_score()
+        "score": new_score(),
+        "held_tetromino": empty_block,
+        "can_hold": true
     };
 };
+
+/**
+ * For a given game,
+ * return the new came with the current tetromino held.
+ * @function
+ * @memberof Tetris
+ * @param {Tetris.Game} game
+ * @returns {Tetris.Game}
+ * @returns {Tetris.Tetromino} The held tetromino
+ */
+Tetris.hold = function(game) {
+    if (game.can_hold == true) {
+        // const new_game = Tetris.new_game();
+        game.can_hold = false;
+
+        if (game.held_tetromino == empty_block) {
+            game.held_tetromino = game.current_tetromino;
+            game.next_tetromino = Tetris.next_turn(game).next_tetromino;
+            game.current_tetromino = game.next_tetromino;
+        } else {
+            const held_piece = game.held_tetromino;
+            game.held_tetromino = game.current_tetromino;
+            game.next_tetromino = Tetris.next_turn(game).next_tetromino;
+            game.current_tetromino = held_piece;
+        }
+
+        return game;
+    } else {
+        console.log('cannot hold right now');
+        return game;
+    }
+}
+
 
 /**
  * For a given tetromino and position,
@@ -320,39 +357,41 @@ Tetris.new_game = function () {
  *     The coordinates `[x, y]` of the centre of the tetromino.
  * @returns {number[][]} The List of  coordinates `[x, y]` of each block.
  */
-Tetris.tetromino_coordiates = function (tetromino, position) {
-    return tetromino.grid.flatMap(function (row, row_index) {
-        return row.flatMap(function (block, column_index) {
+Tetris.tetromino_coordiates = function(tetromino, position) {
+    return tetromino.grid.flatMap(function(row, row_index) {
+        return row.flatMap(function(block, column_index) {
             if (block === empty_block) {
                 return [];
             }
-            return [[
-                position[0] + column_index - Math.floor(tetromino.centre[0]),
-                position[1] + row_index - Math.floor(tetromino.centre[1])
-            ]];
+            return [
+                [
+                    position[0] + column_index - Math.floor(tetromino.centre[0]),
+                    position[1] + row_index - Math.floor(tetromino.centre[1])
+                ]
+            ];
         });
     });
 };
 
-const is_blocked_bottom = function (tetromino, position) {
+const is_blocked_bottom = function(tetromino, position) {
     return Tetris.tetromino_coordiates(tetromino, position).some(
         (coord) => coord[1] >= Tetris.field_height
     );
 };
 
-const is_blocked_left = function (tetromino, position) {
+const is_blocked_left = function(tetromino, position) {
     return Tetris.tetromino_coordiates(tetromino, position).some(
         (coord) => coord[0] < 0
     );
 };
 
-const is_blocked_right = function (tetromino, position) {
+const is_blocked_right = function(tetromino, position) {
     return Tetris.tetromino_coordiates(tetromino, position).some(
         (coord) => coord[0] >= Tetris.field_width
     );
 };
 
-const is_blocked_by_geometry = function (field, tetromino, position) {
+const is_blocked_by_geometry = function(field, tetromino, position) {
     return Tetris.tetromino_coordiates(tetromino, position).filter(
         (coord) => (
             coord[0] >= 0 &&
@@ -365,7 +404,7 @@ const is_blocked_by_geometry = function (field, tetromino, position) {
     );
 };
 
-const is_blocked = function (field, tetromino, position) {
+const is_blocked = function(field, tetromino, position) {
     return (
         is_blocked_bottom(tetromino, position) ||
         is_blocked_left(tetromino, position) ||
@@ -383,7 +422,7 @@ const is_blocked = function (field, tetromino, position) {
  * @param {Tetris.Game} game The initial state of a game.
  * @returns {Tetris.Game} The state after a left move is attempted.
  */
-Tetris.left = function (game) {
+Tetris.left = function(game) {
     if (Tetris.is_game_over(game)) {
         return game;
     }
@@ -391,7 +430,7 @@ Tetris.left = function (game) {
     if (is_blocked(game.field, game.current_tetromino, new_position)) {
         return game;
     }
-    return R.mergeRight(game, {"position": new_position});
+    return R.mergeRight(game, { "position": new_position });
 };
 
 /**
@@ -403,7 +442,7 @@ Tetris.left = function (game) {
  * @param {Tetris.Game} game The initial state of a game.
  * @returns {Tetris.Game} The state after a right move is attempted.
  */
-Tetris.right = function (game) {
+Tetris.right = function(game) {
     if (Tetris.is_game_over(game)) {
         return game;
     }
@@ -411,13 +450,13 @@ Tetris.right = function (game) {
     if (is_blocked(game.field, game.current_tetromino, new_position)) {
         return game;
     }
-    return R.mergeRight(game, {"position": new_position});
+    return R.mergeRight(game, { "position": new_position });
 };
 
 const rotate_grid_cw = R.pipe(R.reverse, R.transpose);
 const rotate_grid_ccw = R.pipe(R.transpose, R.reverse);
 
-const rotate_tetromino_cw = function (tetromino) {
+const rotate_tetromino_cw = function(tetromino) {
     return {
         "block_type": tetromino.block_type,
         "centre": [
@@ -428,7 +467,7 @@ const rotate_tetromino_cw = function (tetromino) {
     };
 };
 
-const rotate_tetromino_ccw = function (tetromino) {
+const rotate_tetromino_ccw = function(tetromino) {
     return {
         "block_type": tetromino.block_type,
         "centre": [
@@ -448,7 +487,7 @@ const rotate_tetromino_ccw = function (tetromino) {
  * @param {Tetris.Game} game The initial state of a game.
  * @returns {Tetris.Game} The state after a CW rotation is attempted.
  */
-Tetris.rotate_cw = function (game) {
+Tetris.rotate_cw = function(game) {
     if (Tetris.is_game_over(game)) {
         return game;
     }
@@ -456,7 +495,7 @@ Tetris.rotate_cw = function (game) {
     if (is_blocked(game.field, new_rotation, game.position)) {
         return game;
     }
-    return R.mergeRight(game, {"current_tetromino": new_rotation});
+    return R.mergeRight(game, { "current_tetromino": new_rotation });
 };
 
 /**
@@ -468,7 +507,7 @@ Tetris.rotate_cw = function (game) {
  * @param {Tetris.Game} game The initial state of a game.
  * @returns {Tetris.Game} The state after a CCW rotation is attempted.
  */
-Tetris.rotate_ccw = function (game) {
+Tetris.rotate_ccw = function(game) {
     if (Tetris.is_game_over(game)) {
         return game;
     }
@@ -476,15 +515,15 @@ Tetris.rotate_ccw = function (game) {
     if (is_blocked(game.field, new_rotation, game.position)) {
         return game;
     }
-    return R.mergeRight(game, {"current_tetromino": new_rotation});
+    return R.mergeRight(game, { "current_tetromino": new_rotation });
 };
 
-const drop_once = function (game) {
+const drop_once = function(game) {
     const new_position = [game.position[0], game.position[1] + 1];
     if (is_blocked(game.field, game.current_tetromino, new_position)) {
         return game;
     }
-    return R.mergeRight(game, {"position": new_position});
+    return R.mergeRight(game, { "position": new_position });
 };
 
 /**
@@ -496,7 +535,7 @@ const drop_once = function (game) {
  * @param {Tetris.Game} game The initial state of a game.
  * @returns {Tetris.Game} The state after a soft drop is attempted.
  */
-Tetris.soft_drop = function (game) {
+Tetris.soft_drop = function(game) {
     if (Tetris.is_game_over(game)) {
         return game;
     }
@@ -513,7 +552,7 @@ Tetris.soft_drop = function (game) {
  * @param {Tetris.Game} game The initial state of a game.
  * @returns {Tetris.Game} The state after a soft drop is attempted.
  */
-Tetris.hard_drop = function (game) {
+Tetris.hard_drop = function(game) {
     if (Tetris.is_game_over(game)) {
         return game;
     }
@@ -526,13 +565,13 @@ Tetris.hard_drop = function (game) {
 
 const lose = R.set(R.lensProp("game_over"), true);
 
-const lock = function (game) {
+const lock = function(game) {
     const updated_field = R.clone(game.field);
     const coords = Tetris.tetromino_coordiates(
         game.current_tetromino,
         game.position
     );
-    coords.forEach(function (coord) {
+    coords.forEach(function(coord) {
         updated_field[coord[1]][coord[0]] = game.current_tetromino.block_type;
     });
     return updated_field;
@@ -540,7 +579,7 @@ const lock = function (game) {
 
 const is_complete_line = (line) => !line.some((block) => block === empty_block);
 
-const pad_field = function (short_field) {
+const pad_field = function(short_field) {
     const missing_row_count = Tetris.field_height - short_field.length;
     const new_rows = R.times(new_line, missing_row_count);
     return [...new_rows, ...short_field];
@@ -563,7 +602,16 @@ const clear_lines = R.pipe(
  * @param {Tetris.Game} game
  * @returns {Tetris.Game}
  */
-Tetris.next_turn = function (game) {
+Tetris.next_turn = function(game) {
+
+    var holdBool = game.can_hold;
+
+    // console.log(holdBool);
+
+    if (holdBool == false) {
+        holdBool = true;
+    }
+
     if (game.game_over) {
         return game;
     }
@@ -574,10 +622,10 @@ Tetris.next_turn = function (game) {
     }
 
     if (is_blocked_by_geometry(
-        game.field,
-        game.current_tetromino,
-        game.position
-    )) {
+            game.field,
+            game.current_tetromino,
+            game.position
+        )) {
         return lose(game);
     }
 
@@ -594,7 +642,9 @@ Tetris.next_turn = function (game) {
         "game_over": false,
         "next_tetromino": next_tetromino,
         "position": starting_position,
-        "score": game.score
+        "score": game.score,
+        "held_tetromino": game.held_tetromino,
+        "can_hold": holdBool
     };
 };
 
@@ -604,7 +654,7 @@ Tetris.next_turn = function (game) {
  * @param {Tetris.Game} game The game to check is over or in play.
  * @returns {boolean} Whether the game is over or not.
  */
-Tetris.is_game_over = function (game) {
+Tetris.is_game_over = function(game) {
     return game.game_over;
 };
 
