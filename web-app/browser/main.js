@@ -49,23 +49,6 @@ const sidebar_cells = range(5).map(function() {
     return rows;
 });
 
-// const hold_piece_cells = range(2).map(function() {
-//     const row = document.createElement("div");
-//     row.className = "row";
-
-//     const rows = range(4).map(function() {
-//         const cell = document.createElement("div");
-//         cell.className = "cell";
-
-//         row.append(cell);
-
-//         return cell;
-//     });
-
-//     hold_piece_grid.append(row);
-//     return rows;
-// });
-
 const update_grid = function() {
     game.field.forEach(function(line, line_index) {
         line.forEach(function(block, column_index) {
@@ -101,8 +84,6 @@ const updateSidebar = function() {
         });
     });
 
-    console.log("called");
-
     game.next_tetromino.grid.forEach(function(line, line_index) {
         line.forEach(function(block, column_index) {
             const cell = sidebar_cells[line_index][column_index];
@@ -119,8 +100,6 @@ const updateSidebar = function() {
                 cell.className = "cell " + block;
             });
         });
-
-        console.log(sidebar_cells);
     }
 
 };
