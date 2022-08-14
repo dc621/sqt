@@ -6,11 +6,9 @@ import R from "./ramda.js";
  */
 const Tetris = Object.create(null);
 
-
 //----------------------------------------------------------------------------//
 // ## Type Definitions                                                        //
 //----------------------------------------------------------------------------//
-
 
 /**
  * A Tetris Game is all the information required to represent the current state
